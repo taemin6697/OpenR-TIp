@@ -1,114 +1,52 @@
-﻿# OpenR-Tip: A Dataset for Service Evaluation Research
+"""
+OpenR-Tip Dataset Overview - Data Format Example
+Based on the paper: "TipMate: An Explainable Tip Calculator based on a LLM"
+"""
+
+README = """
+# 🚀 OpenR-Tip: A Benchmark Dataset for Service Evaluation Research
 
 ![OpenR-Tip Logo](logo.png)
 
+## 📌 Overview
+**OpenR-Tip** (Open Reddit-based Tipping Scenarios) is a high-quality benchmark dataset designed to address the lack of publicly available datasets containing paired real-world service scenarios and their corresponding tip amounts[cite: 339, 340]. 
 
-## Overview
+This dataset enables the evaluation of Large Language Models (LLMs) and Vision-Language Models (VLMs) in their ability to perform complex service quality reasoning and predict economic outcomes (tip percentages)[cite: 16].
 
-**OpenR-Tip** (Open Reddit-based Tipping Scenarios) is a high-quality evaluation dataset designed to address the absence of publicly available datasets containing paired real-world service scenarios and their corresponding tip amounts.
+## 🧩 Dataset Composition
+Each sample in the final dataset consists of a multimodal tuple:
+* **Video Caption**: Objective textual evidence of staff behavior generated from raw narratives[cite: 15, 178].
+* **User Review**: Manually authored subjective customer feedback based on sanitized raw text[cite: 15, 409].
+* **Star Rating**: Customer-assigned satisfaction score (1–5 scale)[cite: 153].
+* **Google Review**: External contextual data matched to similar real-world establishments via Proxy Matching[cite: 163, 412].
+* **Fair Tip Percentage**: Target label (%) ethically validated and corrected by human annotators[cite: 414, 415].
 
-This dataset enables rigorous evaluation of AI-driven service evaluation systems by providing authentic service experiences paired with real-world outcomes (tip percentages).
+---
 
-## Dataset Statistics
+## 🛠 Data Construction Pipeline
+The dataset was constructed using a multi-stage, LLM-assisted pipeline with strict human supervision to prevent data leakage[cite: 341, 392].
 
-- **Raw Data**: 2,000 samples collected from Reddit
-- **Refined Dataset**: 94 high-quality samples with validated tip percentages
-- **Source Communities**: r/TalesFromYourServer, r/Tipping, and related subreddits
+1. **Data Collection**: 2,000 samples collected from Reddit (e.g., r/TalesFromYourServer)[cite: 343, 387].
+2. **Filtering**: Mistral-3.1 was used to retain posts with clear situational context and specific tip percentages[cite: 394, 395].
+3. **Consistency Check**: Contradictory samples were eliminated to ensure high-quality ground truth[cite: 397, 398].
+4. **Human-Supervised Refinement**: Masking tip info, generating supervised captions (Gemini 3 Flash), and manual blind annotation of reviews[cite: 402, 403, 410].
+5. **Fair Tip Correction**: Outliers were adjusted by human annotators to ensure ethical and logical consistency (e.g., correcting 0% tips for excellent service)[cite: 415, 418].
 
-## Dataset Composition
+---
 
-Each sample in the refined dataset consists of:
+## 📝 Data Format Example (Refined Dataset)
+Below is a representative sample from the `reddit_tip_dataset.json`:
 
-- **Review Text**: Customer-perspective reviews describing the service experience
-- **Video Caption**: Standardized visual descriptions of the service situation
-- **Tip Percentage**: Real-world tip amounts (%) given or received
-
-**Note**: This dataset intentionally excludes highly subjective metrics such as Star Ratings and volatile public reputation data such as Google Reviews, focusing instead on the direct relationship between a specific service event and its real-world outcome.
-
-## Data Construction Pipeline
-
-The OpenR-Tip dataset was constructed through a multi-stage, LLM-assisted pipeline:
-
-### 1. Data Collection
-Posts were collected from Reddit communities where service employees and customers describe real service experiences and discuss the tips they gave or received.
-
-### 2. Initial Filtering
-- **Model**: Mistral-3.1-small-Instruct (lightweight locally deployed LLM)
-- **Criteria**: Retained only posts containing both:
-  - Clear description of the service situation
-  - Specific tip percentage (%)
-- **Purpose**: Removed irrelevant data from the initial 2,000 samples
-
-### 3. Consistency Filtering
-- **Purpose**: Eliminate contradictory samples
-- **Examples of Inconsistencies**:
-  - Describing excellent service but leaving 0% tip
-  - Poor service description paired with generous tipping
-- **Result**: Contextually consistent refined dataset
-
-### 4. Data Augmentation & Refinement
-- **Model**: Gemini-2.5-pro
-- **Process**:
-  - Generated customer-perspective reviews from service descriptions
-  - Created video captions for standardized evaluation
-  - Converted data into formats suitable for model evaluation
-- **Quality Control**: Confidence scoring to retain only high-quality results consistent with original context
-
-### 5. Final Validation
-- **Method**: Secondary confidence score verification
-- **Purpose**: Ensure contextual alignment between generated content and original situations
-- **Output**: 94 validated high-quality samples
-
-## File Structure
-
-```
-openrtip/
-├── README.md                        # This file
-├── reddit_tip_raw_dataset.json     # Raw data (2,000 samples)
-└── reddit_tip_dataset.json         # Refined dataset (94 samples)
-```
-
-## Data Format
-
-### Raw Dataset (`reddit_tip_raw_dataset.json`)
 ```json
 {
-  "id": "string",
-  "subreddit": "string",
-  "title": "string",
-  "text_content": "string",
-  "url": "string",
-  "score": number,
-  "num_comments": number,
-  "created_utc": number,
-  "relevance_score": number,
-  "search_keyword": "string",
-  "sort_method": "string"
+  "id": "aeqpbu",
+  "search_keyword": "generous tip",
+  "subreddit": "TalesFromYourServer",
+  "virtual_situation_caption": "Kiosk camera shows a small 12-table dining room... One server works alone on the floor, moving continuously... speaking briefly and apologetically about longer wait times...", 
+  "human_user_review": "The service was an absolute disaster. We waited forever... the server was completely incompetent.",
+  "human_star_rating": 1,
+  "google_review": "Google Review #2: It seemed like the staff was understaffed and overwhelmed. I felt bad for the poor server...",
+  "human_tip_percentage": 3.33,
+  "situation_fair_tip": 12.4, // Ethically corrected label
+  "text_content": "This happened earlier this week. I work for a small mom and pop store..." // Original Reddit source
 }
-```
-
-### Refined Dataset (`reddit_tip_dataset.json`)
-```json
-{
-  "consistency_score": number,
-  "created_utc": number,
-  "error": number,
-  "id": "string",
-  "num_comments": number,
-  "outlier_detection": "string",
-  "predicted_tip": number,
-  "relevance_score": number,
-  "score": number,
-  "search_keyword": "string",
-  "situation_caption": "string",
-  "sort_method": "string",
-  "status": "string",
-  "subreddit": "string",
-  "text_content": "string",
-  "tip_amount": number or null,
-  "tip_percentage": number,
-  "title": "string",
-  "url": "string"
-}
-```
-
