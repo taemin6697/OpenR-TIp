@@ -1,6 +1,4 @@
 
-
-README = """
 # 🚀 OpenR-Tip: A Benchmark Dataset for Service Evaluation Research
 
 ![OpenR-Tip Logo](logo.png)
@@ -47,4 +45,5 @@ Below is a representative sample from the `reddit_tip_dataset.json`:
   "situation_fair_tip": 12.4, // Ethically corrected label
   "text_content": "This happened earlier this week. I work for a small mom and pop store..." // Original Reddit source
 }
+
 
